@@ -7,10 +7,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import it.polito.tdp.baseball.model.Appearances;
-import it.polito.tdp.baseball.model.Arco;
 import it.polito.tdp.baseball.model.People;
 import it.polito.tdp.baseball.model.Team;
 
@@ -102,7 +100,76 @@ public class BaseballDAO {
 	}
 	
 	
+	public List<People> getVertex(Integer anno, double salary){
+		String sql = "SELECT distinct p.*, SUM(s.salary) AS salaryTot "
+				+ "FROM people p, salaries s "
+				+ "WHERE p.playerID = s.playerID "
+				+ "AND s.`year` = ? "
+				+ "GROUP BY p.playerID "
+				+ "HAVING salaryTot > ? ";
+		List<People> result = new ArrayList<People>();
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, anno);
+			st.setDouble(2, salary);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				result.add(new People(rs.getString("playerID"), 
+						rs.getString("birthCountry"), 
+						rs.getString("birthCity"), 
+						rs.getString("deathCountry"), 
+						rs.getString("deathCity"),
+						rs.getString("nameFirst"), 
+						rs.getString("nameLast"), 
+						rs.getInt("weight"), 
+						rs.getInt("height"), 
+						rs.getString("bats"), 
+						rs.getString("throws"),
+						getBirthDate(rs), 
+						getDebutDate(rs), 
+						getFinalGameDate(rs), 
+						getDeathDate(rs)) );
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
 	
+	public List<Integer> getApp(String id, Integer anno){
+		String sql = "SELECT a.teamID "
+				+ "FROM appearances a "
+				+ "WHERE a.playerID = ? AND a.`year`= ? ";
+		List<Integer> result = new ArrayList<Integer>();
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, id);
+			st.setInt(2, anno);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				result.add(rs.getInt("teamID"));
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
 	
 	//=================================================================
 	//==================== HELPER FUNCTIONS   =========================

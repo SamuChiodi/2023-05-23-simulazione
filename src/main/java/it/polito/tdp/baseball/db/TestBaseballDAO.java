@@ -10,7 +10,7 @@ public class TestBaseballDAO {
 		// TODO Auto-generated method stub
 		BaseballDAO dao = new BaseballDAO();
 
-		List<People> players = dao.readAllPlayers();
+		List<People> players = dao.getVertex(2000, 5000000);
 		
 		System.out.println(players.size());
 	}

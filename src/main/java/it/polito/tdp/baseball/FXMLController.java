@@ -1,11 +1,13 @@
 package it.polito.tdp.baseball;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 
-import it.polito.tdp.baseball.model.Grado;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+
 import it.polito.tdp.baseball.model.Model;
 import it.polito.tdp.baseball.model.People;
 import javafx.event.ActionEvent;
@@ -46,16 +48,46 @@ public class FXMLController {
     private TextField txtYear;
 
     
+    private Graph<People, DefaultEdge> grafo;
+    
     
     @FXML
     void doCalcolaConnesse(ActionEvent event) {
     	
+    	this.txtResult.appendText("\nCi sono "+this.model.calcolaConnessa()+" componenti connesse");
+    	
     }
 
-    
+    private List<Integer> anni ;
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	
+    	this.anni = new ArrayList<Integer>();
+    	
+    	for(int i=1871; i<=2019; i++) {
+    		anni.add(i);
+    	}
+    	
+    	
+    	
+    	if(anni.contains(Integer.parseInt(txtYear.getText()))) {
+    		
+    		Integer anno = Integer.parseInt(txtYear.getText());
+    		double salary = Double.parseDouble(txtSalary.getText())*1000000;
+    		
+    		this.grafo = this.model.creaGrafo(anno, salary);
+    		
+    		this.txtResult.setText("Vertici: " +this.grafo.vertexSet().size()+"\n" +"Archi: "+this.grafo.edgeSet().size());
+    		
+    		this.btnGradoMassimo.setDisable(false);
+    		this.btnConnesse.setDisable(false);
+    		
+    		
+    	}else {	this.txtResult.setText("Anno inesistente");}
+    	
+    	
+    	
     	
     }
 
@@ -69,6 +101,8 @@ public class FXMLController {
     @FXML
     void doGradoMassimo(ActionEvent event) {
 
+    	this.txtResult.appendText("\nPersona grado massimo: " + this.model.getMax().toString());
+    	
     }
 
     
@@ -86,6 +120,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
     }
 
 }
